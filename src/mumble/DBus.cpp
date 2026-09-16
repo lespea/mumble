@@ -165,3 +165,17 @@ void MumbleDBus::stopWhisper(const QString &channel, bool subchannels, bool link
 			msg.createErrorReply(dbusErrorPrefix() + QLatin1String(".whisper"), QLatin1String("Unable to stop whisper")));
 	}
 }
+
+void MumbleDBus::startShout(const QString &channel, const QDBusMessage &msg) {
+	startWhisper(channel, true, false, false, QString(), msg);
+}
+
+void MumbleDBus::startShout(const QString &channel, bool links, bool forceCenter, const QString &group,
+							const QDBusMessage &msg) {
+	startWhisper(channel, true, links, forceCenter, group, msg);
+}
+
+void MumbleDBus::stopShout(const QDBusMessage &msg) {
+	stopWhisper(msg);
+}
+
