@@ -52,6 +52,9 @@ public slots:
 	void stopWhisper(const QDBusMessage &);
 	void stopWhisper(const QString &channel, bool subchannels, bool links, bool forceCenter, const QString &group,
 					 const QDBusMessage &);
+	void startShout(const QString &channel, const QDBusMessage &);
+	void startShout(const QString &channel, bool links, bool forceCenter, const QString &group, const QDBusMessage &);
+	void stopShout(const QDBusMessage &);
 };
 
 /**
