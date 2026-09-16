@@ -142,18 +142,26 @@ void MumbleDBus::stopTalking() {
 	Global::get().mw->on_PushToTalk_triggered(false, QVariant());
 }
 
+void MumbleDBus::startWhisper(const QString &channel, const QDBusMessage &msg) {
+	startWhisper(channel, false, false, false, QString(), msg);
+}
+
 void MumbleDBus::startWhisper(const QString &channel, bool subchannels, bool links, bool forceCenter,
 							  const QString &group, const QDBusMessage &msg) {
 	if (!Global::get().mw->setRpcWhispering(true, channel, 0, false, subchannels, links, forceCenter, group)) {
-		QDBusConnection::sessionBus().send(msg.createErrorReply(
-			QLatin1String("net.sourceforge.mumble.Error.whisper"), QLatin1String("Unable to start whisper")));
+		QDBusConnection::sessionBus().send(
+			msg.createErrorReply(dbusErrorPrefix() + QLatin1String(".whisper"), QLatin1String("Unable to start whisper")));
 	}
+}
+
+void MumbleDBus::stopWhisper(const QDBusMessage &msg) {
+	stopWhisper(QString(), false, false, false, QString(), msg);
 }
 
 void MumbleDBus::stopWhisper(const QString &channel, bool subchannels, bool links, bool forceCenter,
 							 const QString &group, const QDBusMessage &msg) {
 	if (!Global::get().mw->setRpcWhispering(false, channel, 0, false, subchannels, links, forceCenter, group)) {
-		QDBusConnection::sessionBus().send(msg.createErrorReply(
-			QLatin1String("net.sourceforge.mumble.Error.whisper"), QLatin1String("Unable to stop whisper")));
+		QDBusConnection::sessionBus().send(
+			msg.createErrorReply(dbusErrorPrefix() + QLatin1String(".whisper"), QLatin1String("Unable to stop whisper")));
 	}
 }

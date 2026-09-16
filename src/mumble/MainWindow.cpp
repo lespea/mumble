@@ -168,6 +168,12 @@ std::optional< int > resolveRpcChannelTarget(const QString &channelName) {
 		return static_cast< int >(caseInsensitiveMatches.constFirst()->iId);
 	}
 
+	bool isNumber = false;
+	unsigned int channelId = target.toUInt(&isNumber);
+	if (isNumber && Channel::c_qhChannels.contains(channelId)) {
+		return static_cast< int >(channelId);
+	}
+
 	return std::nullopt;
 }
 
