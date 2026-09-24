@@ -1,3 +1,5 @@
+tset := 'taskset -ac 0-31'
+
 # List available recipes
 default:
     @just --list
@@ -18,8 +20,22 @@ pull:
 
 # Configure and compile in Release profile with Ninja
 build:
-    cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-    ninja -C build
+    {{ tset }} cmake -B build -G Ninja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_CXX_FLAGS="-gz=zstd" \
+        -DCMAKE_EXE_LINKER_FLAGS="-gz=zstd" \
+        -Dclient=ON \
+        -Dserver=OFF \
+        -Doverlay=OFF \
+        -Doverlay-xcompile=OFF \
+        -Ddbus=ON \
+        -Dlto=ON \
+        -Dplugins=OFF \
+        -Dsymbols=ON \
+        -Dupdate=OFF \
+        -Doptimize=ON
+
+    {{ tset }} mold -run ninja -C build
 
 # Alias for build
 alias release := build
