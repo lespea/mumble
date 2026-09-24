@@ -22,8 +22,9 @@ pull:
 build:
     {{ tset }} cmake -B build -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_CXX_FLAGS="-gz=zstd" \
-        -DCMAKE_EXE_LINKER_FLAGS="-gz=zstd" \
+        -DCMAKE_UNITY_BUILD=ON \
+        -DCMAKE_CXX_FLAGS="-gz=zstd -fno-plt" \
+        -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=mold -gz=zstd" \
         -Dclient=ON \
         -Dserver=OFF \
         -Doverlay=OFF \
