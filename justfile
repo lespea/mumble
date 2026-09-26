@@ -22,8 +22,8 @@ pull:
 build:
     {{ tset }} cmake -B build -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_UNITY_BUILD=ON \
-        -DCMAKE_CXX_FLAGS="-gz=zstd -fno-plt" \
+        -DCMAKE_UNITY_BUILD=OFF \
+        -DCMAKE_CXX_FLAGS="-gz=zstd -fno-plt -Wno-sfinae-incomplete" \
         -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=mold -gz=zstd -Wl,--no-as-needed -lmimalloc" \
         -Dclient=ON \
         -Dserver=OFF \
