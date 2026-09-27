@@ -138,7 +138,8 @@ void SocketRPCClient::processXml() {
 				const QString channelName = qmRequest.value(QLatin1String("channel")).toString();
 				const bool children       = qmRequest.value(QLatin1String("subchannels")).toBool()
 									  || qmRequest.value(QLatin1String("children")).toBool()
-									  || (command == QLatin1String("startshout"));
+									  || (command == QLatin1String("startshout"))
+									  || (command == QLatin1String("stopshout"));
 				const bool links          = qmRequest.value(QLatin1String("links")).toBool();
 				const bool forceCenter    = qmRequest.value(QLatin1String("force_center")).toBool();
 				const QString group       = qmRequest.value(QLatin1String("group")).toString();

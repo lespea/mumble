@@ -3043,10 +3043,6 @@ void MainWindow::pttReleased() {
 
 bool MainWindow::setRpcWhispering(bool down, const QString &channelName, int channelID, bool useChannelID,
 								  bool children, bool links, bool forceCenter, const QString &group) {
-	if (!Global::get().sh || !Global::get().sh->isRunning() || !Global::get().uiSession) {
-		return false;
-	}
-
 	auto releaseTarget = [this](const ShortcutTarget &activeTarget) {
 		ShortcutTarget target = activeTarget;
 
@@ -3073,6 +3069,11 @@ bool MainWindow::setRpcWhispering(bool down, const QString &channelName, int cha
 			updateTarget();
 		}
 		return true;
+	}
+
+	// Releasing must work even while disconnected, otherwise a stop sent during a reconnect leaves us transmitting.
+	if (down && (!Global::get().sh || !Global::get().sh->isRunning() || !Global::get().uiSession)) {
+		return false;
 	}
 
 	ShortcutTarget target;
