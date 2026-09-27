@@ -24,7 +24,7 @@ build:
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_UNITY_BUILD=OFF \
         -DCMAKE_CXX_FLAGS="-gz=zstd -fno-plt -Wno-sfinae-incomplete" \
-        -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=mold -gz=zstd -Wl,--push-state,--no-as-needed -lmimalloc -Wl,--pop-state" \
+        -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=mold -gz=zstd -Wl,--as-needed -Wl,--push-state,--no-as-needed -lmimalloc -Wl,--pop-state" \
         -Dclient=ON \
         -Dserver=OFF \
         -Doverlay=OFF \
