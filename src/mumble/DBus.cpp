@@ -5,15 +5,22 @@
 
 #include "DBus.h"
 
+#include "ACL.h"
 #include "Channel.h"
 #include "ClientUser.h"
 #include "MainWindow.h"
 #include "ServerHandler.h"
 #include "Global.h"
 
+#include <QtCore/QJsonArray>
+#include <QtCore/QJsonDocument>
+#include <QtCore/QJsonObject>
+#include <QtCore/QReadLocker>
 #include <QtCore/QUrlQuery>
 #include <QtDBus/QDBusConnection>
 #include <QtDBus/QDBusMessage>
+
+#include <algorithm>
 
 MumbleDBus::MumbleDBus(QObject *mw) : QDBusAbstractAdaptor(mw) {
 }
@@ -179,3 +186,78 @@ void MumbleDBus::stopShout(const QDBusMessage &msg) {
 	stopWhisper(msg);
 }
 
+void MumbleDBus::getChannelTree(const QDBusMessage &msg) {
+	if (!Global::get().sh || !Global::get().sh->isRunning() || !Global::get().uiSession) {
+		QDBusConnection::sessionBus().send(
+			msg.createErrorReply(dbusErrorPrefix() + QLatin1String(".connection"), QLatin1String("Not connected")));
+		return;
+	}
+
+	auto channelPath = [](const Channel *c) -> QString {
+		QStringList path;
+		while (c && c->cParent) {
+			path.prepend(c->qsName);
+			c = c->cParent;
+		}
+		return QLatin1Char('/') + path.join(QLatin1Char('/'));
+	};
+
+	QReadLocker lock(&Channel::c_qrwlChannels);
+
+	QList< Channel * > channels = Channel::c_qhChannels.values();
+	std::sort(channels.begin(), channels.end(),
+			  [&](const Channel *a, const Channel *b) { return channelPath(a) < channelPath(b); });
+
+	QJsonArray jsonChannels;
+	for (const Channel *c : channels) {
+		QJsonObject obj;
+		obj.insert(QLatin1String("id"), static_cast< qint64 >(c->iId));
+		obj.insert(QLatin1String("path"), channelPath(c));
+		if (c->cParent) {
+			obj.insert(QLatin1String("parent"), static_cast< qint64 >(c->cParent->iId));
+		}
+		obj.insert(QLatin1String("users"), c->qlUsers.count());
+		if (c->bTemporary) {
+			obj.insert(QLatin1String("temporary"), true);
+		}
+
+		if (!c->qsPermLinks.isEmpty()) {
+			QJsonArray links;
+			for (const Channel *l : c->qsPermLinks) {
+				links.append(channelPath(l));
+			}
+			obj.insert(QLatin1String("links"), links);
+		}
+
+		// Permissions are only known for channels the server has sent them for
+		if (c->uiPermissions & ChanACL::Cached) {
+			obj.insert(QLatin1String("whisper"), (c->uiPermissions & ChanACL::Whisper) != 0);
+		}
+
+		jsonChannels.append(obj);
+	}
+
+	QJsonObject result;
+	result.insert(QLatin1String("current"),
+				  channelPath(ClientUser::get(Global::get().uiSession)->cChannel));
+	result.insert(QLatin1String("channels"), jsonChannels);
+
+	QDBusConnection::sessionBus().send(
+		msg.createReply(QString::fromUtf8(QJsonDocument(result).toJson(QJsonDocument::Compact))));
+}
+
+void MumbleDBus::requestChannelPermissions(unsigned int channelID, const QDBusMessage &msg) {
+	if (!Global::get().sh || !Global::get().sh->isRunning() || !Global::get().uiSession) {
+		QDBusConnection::sessionBus().send(
+			msg.createErrorReply(dbusErrorPrefix() + QLatin1String(".connection"), QLatin1String("Not connected")));
+		return;
+	}
+
+	if (!Channel::get(channelID)) {
+		QDBusConnection::sessionBus().send(
+			msg.createErrorReply(dbusErrorPrefix() + QLatin1String(".channel"), QLatin1String("Unknown channel")));
+		return;
+	}
+
+	Global::get().sh->requestChannelPermissions(channelID);
+}

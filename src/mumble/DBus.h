@@ -55,6 +55,11 @@ public slots:
 	void startShout(const QString &channel, const QDBusMessage &);
 	void startShout(const QString &channel, bool links, bool forceCenter, const QString &group, const QDBusMessage &);
 	void stopShout(const QDBusMessage &);
+
+	/// Get the server's channel tree as a JSON string (ids, paths, links, and whisper permission where known).
+	void getChannelTree(const QDBusMessage &);
+	/// Ask the server for our permissions in the given channel. The result shows up in getChannelTree afterwards.
+	void requestChannelPermissions(unsigned int channelID, const QDBusMessage &);
 };
 
 /**
