@@ -21,6 +21,7 @@ pull:
 # Configure and compile in Release profile with Ninja
 build:
     {{ tset }} cmake -B build -G Ninja \
+        -UCMAKE_PROJECT_TOP_LEVEL_INCLUDES \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_UNITY_BUILD=OFF \
         -DCMAKE_CXX_FLAGS="-gz=zstd -fno-plt -Wno-sfinae-incomplete" \
@@ -34,7 +35,9 @@ build:
         -Dplugins=OFF \
         -Dsymbols=ON \
         -Dupdate=OFF \
-        -Doptimize=ON
+        -Doptimize=ON \
+        -Dbundled-rnnoise=OFF \
+        -DFETCHCONTENT_FULLY_DISCONNECTED=ON
 
     {{ tset }} mold -run ninja -C build
 
