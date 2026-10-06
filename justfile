@@ -19,7 +19,7 @@ pull:
     git submodule update --init --recursive
 
 # Configure and compile in Release profile with Ninja
-build:
+config:
     {{ tset }} cmake -B build -G Ninja \
         -UCMAKE_PROJECT_TOP_LEVEL_INCLUDES \
         -DCMAKE_BUILD_TYPE=Release \
@@ -39,6 +39,7 @@ build:
         -Dbundled-rnnoise=OFF \
         -DFETCHCONTENT_FULLY_DISCONNECTED=ON
 
+build:
     {{ tset }} mold -run ninja -C build
 
 # Alias for build
