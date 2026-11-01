@@ -668,15 +668,15 @@ void MainWindow::setupGui() {
 
 	updateTransmitModeComboBox(Global::get().s.atTransmit);
 
-#ifdef Q_OS_WIN
+	// Arrange the docks and toolbar before restoring the saved state. Qt 6 applies a restored
+	// state that does not fit the still hidden, maximized window lazily on show, and moving
+	// dock widgets in the meantime leaves that pending state with dangling layout items.
 	setupView(false);
-#endif
 
 	loadState(Global::get().s.bMinimalView);
 
-	setupView(false);
-
 #ifdef Q_OS_MACOS
+	setupView(false);
 	setWindowOpacity(1.0f);
 #endif
 }
