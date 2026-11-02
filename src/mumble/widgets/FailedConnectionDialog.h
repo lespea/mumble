@@ -32,6 +32,8 @@ public:
 
 private:
 	ConnectDetails m_details;
+	/// Username the favorite was stored with before the user edited it in this dialog
+	QString m_originalUsername;
 
 	void connectSignals();
 
