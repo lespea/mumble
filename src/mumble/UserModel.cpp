@@ -1404,11 +1404,9 @@ void UserModel::addChannelListener(ClientUser *p, Channel *c) {
 }
 
 void UserModel::removeChannelListener(const ClientUser *p, const Channel *c) {
-	// The way operator[] works for a QHash is that it'll insert a default-constructed
-	// object first, before returning a reference to it, in case there is no entry for
-	// the provided key yet. Thus we never have to worry about explicitly adding an empty
-	// list for a new user before accessing it.
-	const QList< ModelItem * > &items = ModelItem::s_userProxies[p];
+	// Iterate over a copy: deleting an item removes it from s_userProxies[p]
+	// (see ~ModelItem), which would invalidate an iteration over the stored list.
+	const QList< ModelItem * > items = ModelItem::s_userProxies.value(p);
 
 	if (items.isEmpty()) {
 		return;
