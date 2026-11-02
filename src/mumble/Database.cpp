@@ -760,14 +760,16 @@ void Database::setDigest(const QString &hostname, unsigned short port, const QSt
 	execQueryAndLogFailure(query);
 }
 
-void Database::setPassword(const QString &hostname, unsigned short port, const QString &uname, const QString &pw) {
+void Database::setCredentials(const QString &hostname, unsigned short port, const QString &oldUser,
+							  const QString &uname, const QString &pw) {
 	QSqlQuery query(db);
-	query.prepare(
-		QLatin1String("UPDATE `servers` SET `password` = ? WHERE `hostname` = ? AND `port` = ? AND `username` = ?"));
+	query.prepare(QLatin1String("UPDATE `servers` SET `username` = ?, `password` = ? WHERE `hostname` = ? AND `port` = "
+								"? AND `username` = ?"));
+	query.addBindValue(uname);
 	query.addBindValue(pw);
 	query.addBindValue(hostname);
 	query.addBindValue(port);
-	query.addBindValue(uname);
+	query.addBindValue(oldUser);
 	execQueryAndLogFailure(query);
 }
 

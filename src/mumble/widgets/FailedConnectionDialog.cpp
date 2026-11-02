@@ -16,7 +16,7 @@
 #include <QPushButton>
 
 FailedConnectionDialog::FailedConnectionDialog(ConnectDetails details, ConnectionFailType type, QWidget *parent)
-	: QDialog(parent), m_details(std::move(details)) {
+	: QDialog(parent), m_details(std::move(details)), m_originalUsername(m_details.username) {
 	setupUi(this);
 
 	invalidUserNameInput->setText(m_details.username);
@@ -93,7 +93,8 @@ void FailedConnectionDialog::connectSignals() {
 
 void FailedConnectionDialog::initiateReconnect() {
 	if (Global::get().db->isFavorite(m_details.host, m_details.port) && qcbSavePassword->isChecked()) {
-		Global::get().db->setPassword(m_details.host, m_details.port, m_details.username, m_details.password);
+		Global::get().db->setCredentials(m_details.host, m_details.port, m_originalUsername, m_details.username,
+										 m_details.password);
 	}
 
 	Global::get().sh->setConnectionInfo(m_details.host, m_details.port, m_details.username, m_details.password);
